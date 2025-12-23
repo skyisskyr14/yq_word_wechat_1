@@ -1,7 +1,110 @@
 <!--index.wxml-->
-<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<navigation-bar title="传感器监测" back="{{false}}" color="black" background="#f7f8fa"></navigation-bar>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
-    Weixin
+    <view class="card">
+      <view class="card-title">MQTT 连接配置</view>
+      <view class="form-row">
+        <view class="label">Host</view>
+        <input class="input" placeholder="1.2.3.4" value="{{mqttConfig.host}}" data-key="host" bindinput="handleConfigInput" />
+      </view>
+      <view class="form-row">
+        <view class="label">Port</view>
+        <input class="input" type="number" placeholder="8083" value="{{mqttConfig.port}}" data-key="port" bindinput="handleConfigInput" />
+      </view>
+      <view class="form-row">
+        <view class="label">Path</view>
+        <input class="input" placeholder="/mqtt" value="{{mqttConfig.path}}" data-key="path" bindinput="handleConfigInput" />
+      </view>
+      <view class="form-row">
+        <view class="label">Topic</view>
+        <input class="input" placeholder="sensors/data" value="{{mqttConfig.topic}}" data-key="topic" bindinput="handleConfigInput" />
+      </view>
+      <view class="form-row">
+        <view class="label">用户名</view>
+        <input class="input" placeholder="可选" value="{{mqttConfig.username}}" data-key="username" bindinput="handleConfigInput" />
+      </view>
+      <view class="form-row">
+        <view class="label">密码</view>
+        <input class="input" password placeholder="可选" value="{{mqttConfig.password}}" data-key="password" bindinput="handleConfigInput" />
+      </view>
+      <view class="status-line">
+        <text class="status-dot {{connectionStatus}}"></text>
+        <text class="status-text">{{connectionStatus}}</text>
+        <text class="status-msg">{{connectionMessage}}</text>
+      </view>
+      <view class="switch-row">
+        <view class="label">使用模拟数据</view>
+        <switch checked="{{useSimulation}}" bindchange="toggleSimulation" />
+      </view>
+      <view class="btn-row">
+        <button type="primary" class="btn" bindtap="startDetection" disabled="{{detectionRunning}}">开始检测</button>
+        <button class="btn" bindtap="stopDetection" disabled="{{!detectionRunning}}">停止</button>
+        <button class="btn ghost" bindtap="resetData">重置</button>
+      </view>
+      <view class="hint">服务器未就绪时，可开启“使用模拟数据”持续生成随机值。</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">阈值设置</view>
+      <view class="threshold-grid">
+        <view class="form-row">
+          <view class="label">温度 (°C)</view>
+          <input class="input" type="number" value="{{thresholds.temperature}}" data-key="temperature" bindinput="handleThresholdInput" />
+        </view>
+        <view class="form-row">
+          <view class="label">湿度 (%)</view>
+          <input class="input" type="number" value="{{thresholds.humidity}}" data-key="humidity" bindinput="handleThresholdInput" />
+        </view>
+        <view class="form-row">
+          <view class="label">距离 (cm)</view>
+          <input class="input" type="number" value="{{thresholds.distance}}" data-key="distance" bindinput="handleThresholdInput" />
+        </view>
+        <view class="form-row">
+          <view class="label">烟雾/气体</view>
+          <input class="input" type="number" value="{{thresholds.gas}}" data-key="gas" bindinput="handleThresholdInput" />
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">实时数据</view>
+      <view class="sensor-row">
+        <view class="sensor-label">温度</view>
+        <text class="sensor-value">{{sensorValues.temperature !== null ? sensorValues.temperature + '°C' : '--'}}</text>
+      </view>
+      <view class="sensor-row">
+        <view class="sensor-label">湿度</view>
+        <text class="sensor-value">{{sensorValues.humidity !== null ? sensorValues.humidity + '%' : '--'}}</text>
+      </view>
+      <view class="sensor-row">
+        <view class="sensor-label">距离</view>
+        <text class="sensor-value">{{sensorValues.distance !== null ? sensorValues.distance + ' cm' : '--'}}</text>
+      </view>
+      <view class="sensor-row">
+        <view class="sensor-label">气体</view>
+        <text class="sensor-value">{{sensorValues.gas !== null ? sensorValues.gas : '--'}}</text>
+      </view>
+      <view class="last-update">来源：{{lastUpdateSource}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">告警灯状态</view>
+      <view class="lights">
+        <view class="light-item">
+          <view class="light-icon dht11 {{lights.dht11 ? 'on' : ''}}"></view>
+          <text>DHT11（温湿度）</text>
+        </view>
+        <view class="light-item">
+          <view class="light-icon sr04 {{lights.sr04 ? 'on' : ''}}"></view>
+          <text>SR04（距离）</text>
+        </view>
+        <view class="light-item">
+          <view class="light-icon mq2 {{lights.mq2 ? 'on' : ''}}"></view>
+          <text>MQ2（烟雾）</text>
+        </view>
+      </view>
+      <view class="hint">超过阈值时对应模块的灯会亮起（颜色各不相同）。</view>
+    </view>
   </view>
 </scroll-view>
